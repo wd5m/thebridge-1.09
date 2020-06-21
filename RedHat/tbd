@@ -1,0 +1,84 @@
+#!/bin/sh
+#
+# description: Starts and stops thebridge conference server
+#
+# chkconfig: - 73 15
+# pidfile: /var/run/tbd.pid
+# config:  /usr/local/etc/tbd.conf
+#
+# $Id: tbd,v 1.2 2008/09/07 20:22:41 wb6ymh Exp $
+
+
+# Source function library.
+if [ -f /etc/init.d/functions ] ; then
+  . /etc/init.d/functions
+elif [ -f /etc/rc.d/init.d/functions ] ; then
+  . /etc/rc.d/init.d/functions
+else
+  exit 0
+fi
+
+RETVAL=0
+
+
+start() {
+        echo -n $"Starting thebridge: "
+        daemon tbd
+        RETVAL=$?
+        echo
+        [ $RETVAL -eq 0 ] && touch /var/lock/subsys/tbd || \
+           RETVAL=1
+        return $RETVAL
+}       
+
+stop() {
+        echo -n $"Shutting down thebridge: "
+        killproc tbd
+        RETVAL=$?
+        echo
+        [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/tbd
+        return $RETVAL
+}       
+
+restart() {
+        stop
+        start
+}       
+
+reload() {
+        echo -n $"Reloading tbd.conf file: "
+        killproc tbd -HUP
+        RETVAL=$?
+        echo
+        return $RETVAL
+}       
+
+rhstatus() {
+        status tbd
+}       
+
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  restart)
+        restart
+        ;;
+  reload)
+        reload
+        ;;
+  status)
+        rhstatus
+        ;;
+  condrestart)
+        [ -f /var/lock/subsys/tbb ] && restart || :
+        ;;
+  *)
+        echo $"Usage: $0 {start|stop|restart|reload|status|condrestart}"
+        exit 1
+esac
+
+exit $?

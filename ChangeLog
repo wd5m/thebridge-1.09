@@ -1,0 +1,1281 @@
+####################################
+Changes in version 1.09, 12/9/2012:
+
+Minor enhancements:
+1. Added new option '5' for LogFileRolloverType for monthly logs.
+
+2. Added ConfCmdEnable configuration variable to allow commands sent in 
+   EchoLink text packets to be controlled separately from UDP audio and text
+   "conferencing".  Previously commands were disabled when ConfEnable was 
+   set to zero.  This is primarily of use with "Transcoding" conferences 
+   (reflectors).
+
+3. Added -q command line switch to the .users command to allow suppression
+   of logging of the command.  Useful for CGI scripts that poll constantly
+   using the .users command to update realtime web pages.
+
+Misc changes:
+1. Removed deprecated support for the chan_rtpdir interface to Asterisk which
+   has been replaced with G.726.
+
+Bug Fixes:
+1. Corrected a bug in the APRS-IS code that caused tlb to loop using 100% 
+   of the CPU time when the APRS-IS server communications timed out.
+   Thanks to Rob VK5TRM for reporting and help debugging this problem.
+
+2. Corrected a bug that caused the user count to get out of synch when an
+   rtcp timeout occurred on a permanent connection.
+
+3. Corrected a bug that caused the user count to get out of synch when an
+   a node was disconnected and then reconnected quickly.
+
+4. Corrected a bug which caused "conferences" created by the Rtp_port
+   configuration file variable to be deleted when the last user logs
+   out.
+
+5. Corrected several memset() calls where the value (0) and the length
+   were swapped.  These errors were caught by newer versions of GCC and
+   were apparently benign.
+
+6. Corrected a bug which caused a timeout by a conference user to be logged
+   multiple times (once per packet).  Added a log entry when the long winded
+   operator finally unkeys.
+
+7. Removed code added in 1.07 that sent "Bye" packets to stations which were
+   in the disconnecting state when anything is received from them.  IRLP
+   reflectors reflect the user's "Bye" packet which caused an infinite
+   bandwith consuming loop.  Extra "Bye" packets are now only sent in reply 
+   to valid RTCP packets.
+
+8. Removed code that set LastHeard for RTP packets, LastHeard should only
+   be set for RTCP packets.  Ensures we can disconnect from nodes sending
+   an constant audio stream.
+
+####################################
+Changes in version 1.08, 11/29/2012: (limited beta release)
+
+Minor enhancements:
+1. Dave Cameron ve7ltd Added install/unistall and init.d script support for 
+Debian.
+
+####################################
+Changes in version 1.07, 9/15/2009: (limited beta release)
+
+Minor enhancements:
+1. Added -T switch to the users command to display the user list sorted by
+   the time since the user's last transmission.  The user who has transmitted
+   most recently will be at the top of the list.  Normally the list is sorted
+   by the connect time with the station that's been connected the longest at
+   the top of the list.
+   
+2. Added -s switch to the users command to display the user list in the format 
+   that it is shown on EchoLink user's screens when they are connected to
+   the node.  This format show's the user's name or in the case of a 
+   conference the station that's currently talking.
+   
+3. Modified connection and disconnection logic to suppress announcements for
+   IRLP stations unless the new configuration file variable IRLPAnnouncements
+   is set to 1.
+   
+4. Quieted QueueEvent logging, it now logs if more than one event is 
+   outstanding.
+   
+5. Added a -x switch to the .mute and .unmute commands to mute user text.
+
+6. Added a new configuration variable TempDir which specifies where 
+   temporary files are to be created.  Currently temporary files are used 
+   to update the DNS cache and when tlb is configured to use a text to speech
+   system.  If TempDir is not set the WorkingDir will be used for temporary
+   files.
+
+7. Added code contributed by Jason VA3VSS to log the station's IP address as 
+   well as callsign on connects and disconnects when the new configuration 
+   variable LogIPAddresses is set.
+
+8. Added code to tlbcmd's play personality set the maximum wait time for 
+    the playback to complete  from the TLB_MAX_PLAY environment variable if 
+    present.  The default timeout is 30 seconds.
+    
+9. Added -v switch to the .users command to display the version and type
+    of software the user is running when that information is available.
+   
+Bug Fixes:
+1. Modified the way the connection node count is handled so connections that
+   nodes that are in the process of connecting or disconnecting are not 
+   included in the total.
+
+2. Modified code to send "Bye" packets to stations which are in the 
+    disconnecting state when anything is received from them.  This is to
+    cover the case where the initial "Bye" packet is lost.
+    
+3. Modified conferencing code to prevent doubling warning message from being
+    sent to full duplex stations.
+
+4. Modified the configuration file parser to keep continue parsing the file
+   following an error.  Prevents lots of confusion that resulted when an 
+   error on one variable caused the configuration pass to abort.  
+   Note: Errors on pass 1 configuration variables prevent tlb from running 
+   but tlb will continue to run if errors are found on succeeding passes.
+   
+5. Set new user's CompressType from conference's CompressType rather than
+   assuming GSM.  Corrects playing of .WAV format welcome messages to non-GSM
+   clients.
+   
+6. Modified file playback code to clear ssrc only when absolutely necessary.
+   Corrects file playback to tlb clients under certain unusual timing
+   situations.
+
+7. Corrected a bug that prevented tlb from changing user identities when run in 
+   debug mode.
+    
+####################################
+Changes in version 1.06, 10/11/2008:
+
+Bug Fixes:
+1. Corrected a major memory leak introduced in 0.84.  Several killobytes of 
+   memory are lost everytime the user database is updated (by default every 
+   10 minutes).  Over time this adds up to a significant amount of memory.
+
+Minor enhancements:
+1. Added automatic detection of big endian hosts to configure script.
+
+2. Added chkconfig info to Redhat startup script courtesy of John K1DWU.
+
+####################################
+Changes in version 1.05, 7/26/2008: (limited beta release)
+
+Minor enhancements:
+1. Modified Asterisk code for compatibility with chan_rtpdir version 0.5.  
+   NB: chan_rptdir version 0.2 is no longer supported.
+
+2. Added the ability for Asterisk nodes to initiate connections to Echolink 
+   nodes by entering the 6 digit EchoLink node number.  Leading zeros must be 
+   entered for 4 and 5 digit nodes.
+   
+3. Added the ability for Asterisk nodes to disconnect the last EchoLink node by
+   connected by entering "000000".
+
+4. Added -b, -c and -t arguments to the .users command.  The -b switch
+   suppresses the display of the user's attributes.  The -c switch displays
+   the amount of time each user has been connected.  The -t switch displays
+   the time since the user last transmitted.
+
+####################################
+Changes in version 1.04, 7/23/2008: (limited beta release)
+
+New features:
+1. Added support for full duplex operation via the conference.  When full 
+   duplex is enabled packets received from full duplex capable stations are 
+   forwarded to other full duplex capable stations even if someone has 
+   "taken the floor" and is talking. The full duplex mode is enabled by 
+   setting the fullduplex configuration variable to 1.  The fullduplex 
+   variable may be changed on the fly using the .set command. Currently the 
+   only client software that supports full duplex via a conference is 
+   thelinkbox. 
+   
+Minor enhancements:
+1. Added the ability to dynamically control the Asterisk connection via the 
+   .connect, .disconnect and .kick commands and the AsteriskEnable 
+   configuration variable.  
+   
+2. Replaced the AllowADPCM configuration variable with CompressionType. 
+   This allows the conference to be configured for use by PCMU (uLaw), ADPCM,
+   or GSM.  NB: Sharing a conference between multiple codecs is no longer
+   supported, it never made much sense anyway.
+   
+3. Added event hook support for Asterisk connections.
+
+####################################
+Changes in version 1.03, 7/16/2008: (limited beta release)
+
+New features:
+1. Added support for Asterisk's new chan_rtpdir driver. See the configuration 
+   variables AsteriskPort, AsteriskIP, AsteriskBind2IP and AsteriskDesc in
+   tbd.conf.sample for more information.  NB: This code is for people who are 
+   knowledgeable about Asterisk and the app_rpt project. I needed a *lot* of 
+   help from W9SH and K6JWN to get my Asterisk node running, so I won't be 
+   offering any help for configuring Asterisk to use the new chan driver.
+
+Minor enhancements:
+1. Cleaned up the .disconnect command's response messages.
+
+2. Added code to enable the stock EchoLink client's DTMF pad when the 
+   configuration variable EnableRemoteDTMF is set to 1.
+   
+3. Added (untested) support for full duplex clients (currently just thelinkbox).
+
+4. Added -f switch to the .connect command to specify full duplex connection.
+
+Bug Fixes:
+1. Modified code to prevent 5 bytes of garbage from being written to the end 
+   of saved .info files.
+
+2. Modified code to prevent station list received from other conferences from
+   being  saved as info and in .info files.
+
+####################################
+Changes in version 1.02, 6/25/2008: (limited beta release)
+
+Minor enhancements:
+1. Modified the .disconnect command to accept "." as a short hand for the
+   station currently talking to match the .mute command.
+
+####################################
+Changes in version 1.01, 6/15/2008: (limited beta release)
+
+Bug Fixes:
+1. Corrected compile errors under Windoze.
+
+####################################
+Changes in version 1.00, 6/12/2008: (limited beta release)
+
+Minor enhancements:
+1. Modified tbdcmd/tbdchat to save and restore the history file from the
+   user's home directory rather than the current directory.
+   
+2. Modified ExecHook to pass all chat text in the second argument for
+   "chat" and "sent_chat" events.  Previously everything including the
+   event type was passed in the first argument which made life for scripts
+   harder rather than easier.
+
+
+####################################
+Changes in version 0.99, 5/19/2008: (limited beta release)
+
+Bug Fixes:
+1. Modified code to record locally generated chat traffic even when the
+   conference is empty. Thanks to wd5m for reporting this bug and help 
+   testing the fix.
+
+2. Corrected compiler errors and numerous warnings about deprecated conversion 
+   from string constant to 'char *' when compiling with GCC 4.2.x.
+   
+3. Corrected a bug in the command parser that could cause command output
+   to be logged instead of the user's command.  This bug could also prevent
+   multiple commands on one line from executing properly. Thanks to wd5m for
+   reporting this bug and help testing the fix.
+
+####################################
+Changes in version 0.98, 4/11/2008: (limited beta release)
+
+Minor enhancement:
+1. Added code to send an sent_chat event to the event hook when a chat message
+   is sent.
+
+Bug Fixes:
+1. Corrected bug that could cause a segfault when an invalid email address
+   is entered for the EmailAdr configuration variable.
+   
+####################################
+Changes in version 0.97, 4/3/2008: (limited beta release)
+
+Minor enhancement:
+1. Added code to send an chat event to the event hook when a text chat message
+   is received from a user.
+
+2. Modified configuration file parser and .set command to handle variable 
+   assignments without spaces around the equals sign.
+
+####################################
+Changes in version 0.96, 3/6/2008:
+
+Bug Fixes:
+1. Corrected a bug in the file playback code that caused crashes on some 
+   systems when a welcome file was played for SF clients.
+
+####################################
+Changes in version 0.95, 3/5/2008:
+
+Minor enhancement:
+1. Added addons subdirectory for user contributed scripts and programs that
+   enhance the operation of thebridge.  Currently contains KC4YOZ's web 
+   based user management cgi script.  Other contributions welcome!
+
+####################################
+Changes in version 0.94, 2/29/2008: (limited beta release)
+
+Minor enhancement:
+1. Added code to display a usage message when the .monitor command is run 
+   without arguments.
+
+2. Modified the users command to display an 'a' user attribute for ADPCM users.
+
+Bug Fixes:
+1. Corrected bugs that prevented the .record command from recording traffic
+   from SF and RTP clients.  NB: only GSM traffic can be recorded.
+   
+2. Modified the code to assume new SF and RTP connections are using the GSM 
+   codec rather than ADPCM. There's no way to tell if this is actually the case 
+   until an audio packet is received from the client.  This assumption may be 
+   wrong, but currently we only support welcome messages in GSM format.  If a 
+   welcome message is played in GSM format for a some clients (linkbox) they 
+   will *SWITCH* to GSM when they receive it.  Meaning if you want an ADPCM 
+   conference you should *NOT* configure the conference to send a welcome 
+   message.
+
+####################################
+Changes in version 0.93, 2/28/2008: (limited beta release)
+
+Minor enhancement:
+1. Added support to the play4 -u command for SF and RTP clients.
+
+Bug Fixes:
+1. Corrected bug in Play4 (without -u option) command introduced in version
+   0.90.  Version 0.90 -> 0.92 were unable to play a file for all users.
+
+####################################
+Changes in version 0.92, 2/27/2008: (limited beta release)
+
+Bug Fixes:
+1. Fixed a bug introduced in 0.91 which made it impossible for -L and -R
+   stations to connect.
+   
+2. Fixed a typo in the .connect command which caused duplicate dynamic 
+   conferences to be created.
+
+####################################
+Changes in version 0.91, 2/26/2008: (limited beta release)
+
+Minor enhancement:
+1. Added a new configuration variable EchoLinkEnable that can be used to
+   prevent tbd from opening sockets for the Echolink ports. This allows 
+   multiple copies of thebridge to be run on a single homed host to provide 
+   multiple RTP or Speak Freely conferences.  The addition of a separate
+   configuration variable for disabling the ports rather than using 
+   LoginInterval as was done in 0.90 allows svxlink, EchoMac and other
+   EchoLink clients to be used with a standalone or "off grid" conference.
+   The "real" EchoLink client, however, can not be used in such a fashion
+   since it verifies all connections with the EchoLink directory servers. 
+   Thanks to VK3JED for pointing out the usefulness of EchoLink protocol
+   support even for "offgrid" conferences.
+   
+Bug Fixes:
+1. Corrected a bug in tbdcmd that caused a segfault when a ^D was used to exit
+   and it was compiled with readline support.
+
+2. Removed newline from playbackcomplete event.  This was the only event
+   which ended in a newline.  Thanks to WD5M for finding and reporting this.
+   
+3. Corrected a bug introduced in 0.90 that caused the Speak Freely and RTP
+   conference to be enabled even when SF_Enable was zero.
+   
+4. Modified SF and RTP code to ignore packets with unknown codecs rather
+   than kicking the connection.
+   
+5. Modified the .connect command to default to the port specified by the
+   SF_Port configuration variable rather than 2074 for Speak Freely 
+   and RTP connections to match tbd's behaviour prior to version 0.87.
+   
+6. Corrected incorrect generation of "bye/disconnect" packets for Speak
+   Freely and RTP clients. Previously "bye/disconnect" packets were always
+   generated in EchoLink format.
+   
+7. Corrected a bug in the access control routines which prevented -R or 
+   -L stations from being .allowed to connect via RTP or SF.
+   
+8. Corrected a bug in the access control routines that caused -R or -L 
+   callsign suffixes to be lost for station connected via RTP or SF that 
+   were allowed by IP address.
+   
+9. Corrected a bug in the connect command that prevented a connection to
+   a node by IP address from being reestablished immediately after it had
+   been disconnected.
+   
+####################################
+Changes in version 0.90, 2/23/2008: (limited beta release)
+
+Minor enhancement:
+1. Added code to log any error messages (such as bad password) received
+   from the EchoLink directory servers.
+   
+2. Changed the configure script's default for readline support to disabled
+   to reduce build problems.  To enable readline support run configure with
+   the --with-readline flag.
+   
+3. Added new configuration file variable AllowADPCM to enable the Speak Freely
+   and RTP conferences to support clients running the ADPCM codec.  
+   NB: This does *NOT* mean that GSM and ADPCM clients will be able to 
+   communicate by connecting to a common conference.  GSM packets are only 
+   relayed to GSM clients and ADPCM packets are only relayed to ADPCM clients.
+
+4. Added support for the dmalloc memory debugging tool.  Added code to 
+   explicitly release memory on shutdown to help locate actual memory leaks.
+   
+Bug Fixes:
+1. Modified tbdcmd to disable readline support when used by a script to
+   prevent SetTerminalMode from spewing error messages.
+   
+2. Corrected a bug in SFBind2IP which also broke Bind2IP operation. Thanks
+   to VK3JED for debugging help.
+   
+3. Modified code to prevent opening sockets for the Echolink ports when
+   LoginInterval is set to zero to disable Echolink.  This allows multiple
+   copies of thebridge to be run on a single homed host to provide multiple
+   RTP or Speak Freely conferences.
+
+####################################
+Changes in version 0.89, 2/9/2008:
+
+Minor enhancements:
+1. Added Echolink firewall mitigation code courtesy of Johnathan K1RFD.
+   This code is invoked by the .connect command to assist with connections to
+   version 2.0 and above EchoLink nodes located behind unconfigured firewalls. 
+   For more details about the new firewall friendliness of Echolink 2.x see
+   http://www.echolink.org/firewall-friendly.htm .
+   
+2. Added support for a new configuration variable ShowStatusInInfo to 
+   enable EchoIRLP nodes to be configured to automatically show the name of 
+   the current connection in the info field on the EchoLink directory servers.
+   See the sample configuration file for more details.
+   
+3. Added a private chat mode for sysop's and admins.  Sysops and admins can 
+   prevent individual chat message from being sent to normal users by starting
+   the message with a semicolon (';'). Sysops and admins can also prevent 
+   individual chat message from being sent to normal users and sysops by 
+   starting the message with a comma (',').  Neither of these characters have 
+   any special significance when sent by a normal user.
+   
+####################################
+Changes in version 0.88, 1/2/2008: (limited beta release)
+
+Minor enhancements: 
+1. Added a new configuration variable SFBind2IP to allow Speak Freely
+   conferences to be bound to a different IP address than EchoLink conferences.
+
+Bug Fixes:
+1. Modified the behavour for handling unknown EchoLink clients.  Originally
+   unknown EchoLink clients were simply ignored which allowed them to connect
+   on a retry after their IP address was verified with the Echolink directory 
+   servers.  A change was made in version 0.84 which sent unknown (and
+   banned) stations a "bye" packet which caused the first connection attempt
+   from stations that had recently logged into EchoLink to fail.  The new
+   behavour is to ignore unknown EchoLink users but to send a "bye" packets
+   to banned users.
+   
+####################################
+Changes in version 0.87, 12/22/2007: (limited beta release)
+
+New features:
+1. Added GNU readline support to tbdcmd and tbdchat. Command history is
+   now available via the up arrow among a huge list of other things that
+   readline knows now to do.  Executive summary: use the cursor keys and 
+   they might just do what you expect.
+
+Minor enhancements: 
+1. Modified configuration variable access routines to allow more configuration
+   variables to set or displayed by the .set command.
+
+2. Added -m command line parameter to the .connect command to establish
+   connections in monitor mode.
+   
+3. Added -p command line parameter to the .connect command to allow 
+   connections to arbitrary port numbers.
+
+4. Added code sent the "NAME" RTCP field to Speak Freely and RTP clients.  The
+   default value is ConferenceCall unless overridden by the new configuration 
+   variable FullName.  The CNAME field is now set to "CALLSIGN" for 
+   compatibility, previously it was set to ConferenceCall.
+
+Bug Fixes:
+1. Corrected a bug that could cause the exit status of child processes to be
+   missed when if more than one child exits at a time.  This bug prevented
+   EventScripts from being called correctly.
+   
+2. Changed the way the source port for transmitted packets is determined to 
+   make it more general and efficient.
+
+####################################
+Changes in version 0.86, 12/8/2007: (limited beta release)
+
+Bug Fixes:
+1. Modified code so data is always sent from the appropriate port. Previously
+   IRLP data (after conversion to EchoLink format) was sent to the EchoLink
+   ports, but from the IRLP ports.  Normally this is not a problem, but if
+   a user's firewall is using dynamic rules created by outbound packets then
+   the these packets would be lost.  Effect is some EchoLink clients can not
+   hear IRLP stations via integrated IRLP/EchoLink conferences.
+   
+2. Corrected bug what caused multiple copies of tbd to (attempt) to run
+   at the same time when the EventScript variable pointed to something 
+   that didn't exist or wasn't executable.
+
+####################################
+Changes in version 0.85, 7/2/2007:
+
+Minor enhancements: 
+1. Changed the algorithm used for sending conference signature, it is now 
+   sent when more than one external connection is active rather than just 
+   when the system is configured to allow multiple connections. 
+
+Bug fixes:
+1. Corrected C99 C declaration mixed with code in tbdcmd.c that's not accepted
+   by pre C89 compilers.  This is the first time I've run into code gcc 4.x
+   liked that other compilers don't, it's usually the other way around.
+   
+2. Corrected hooks for tbdQt in thebridge.c
+
+3. Corrected a bug in the configuration file parser which caused thebridge 
+   to exit immediately without explanation when the configuration file
+   contained a StartupCmd.  Thanks to VK3JED for discovering this bug and
+   helping debug it.
+
+####################################
+Changes in version 0.84, 6/29/2007:
+
+New features:
+1. Added a .lookup command contributed by Scott KI4LKF.  The lookup command 
+   displays the specified user's node#, QTH, and busy status.
+   
+2. Added a .set command which allows configuration file variables to be 
+   displayed and set interactively.  Note: most, but not all, configuration 
+   variables can be set by the set command.  The variables that are not 
+   supported (such as runas) require the thebridge to be restarted.
+   
+3. Added -r argument to the connect command.  The -r argument selects the 
+   RTP protocol rather than the default EchoLink protocol.
+
+4. Added an "last" option to the disconnect command.  Disconnects the last 
+   station connected.
+
+5. Added a separate interface for the EchoLink text mode via tbdchat 
+   (tbdcmd alias).  Previously the .chat mode command and tbdcmd was used for 
+   this purpose, but conflicts between interactive use and automatic use by 
+   scripts proved to be unworkable.  See the configuration file variable 
+   ChatPort.
+   
+Minor enhancements: 
+1. Added hooks for tbdQt by Scott KI4LKF, see the http://CQInet.sf.net for the
+   tbdQt package.
+   
+2. Modified GenSDES to only send the conference signature when thebridge is
+   configured as a conference server.  When thebridge is used by the EchoIRLP 
+   project conferencing might not be enabled.
+   
+3. Renamed the "quit" command to "quickexit" to prevent accidents.  Many people
+   have tried to exit the tbdcmd program with unexpected (and undesired!) 
+   results.
+
+4. The node's Qth may now be optionally included in the hosts file by setting
+   the QthInHostsFile configuration variable.  NB: As of today the inclusion
+   of Qth information breaks the EchoIRLP scripts.
+
+Bug fixes:
+1. Fixed the ages old "Unable to enable core dumps" error/warning issued by
+   tbdcmd which occurred on recent versions of the Linux kernel.  (This bug
+   was fixed in tbd version 0.83, but the same bug in tbdcmd was missed.)
+   
+2. Modified GetPacketType to allow duplicate commands to be entered via local
+   chat or command ports.  
+   
+3. Banned stations are now sent "bye" packets when they attempt to connect, 
+   previously banned stations were just ignored. This caused problems when
+   a conference was banned because thebridge is designed to continue to attempt 
+   to connect forever unless stopped manually.  Sending a "bye" packet stops
+   the connection attempt (and prevent log files from filling with 
+   "Ignoring unauthorized user" messages).
+
+####################################
+Changes in version 0.83, 8/5/2006:
+
+Bug fixes:
+1. Applied patch supplied by Satoshi Yasuda(7m3tjz/ad6gz) to correct logfile
+   filename generation for the daily log option.  Thanks Satoshi!
+   
+2. Increased MAX_SNAPSHOT_LEN to 16.  On *some* platforms the 10-digit
+   snapshot ID was being truncated to 9 digits.  Apparently this was caused
+   by snprintf run time library differences.  Thanks to Jonathan K1RFD for 
+   noticing the problem and finding the solution.
+
+3. Corrected compile problems with GCC 4.x.x (found on Fedora core 4 and 
+   later).  Considering the number of compiler's that don't choke on the code
+   I think this is a compiler bug, but restructuring the code to avoid the
+   error was trivial.
+   
+4. Fixed the ages old "Unable to enable core dumps" error/warning which occurred
+   on recent versions of the Linux kernel.
+
+####################################
+Changes in version 0.82, 2/11/2005: (limited beta release)
+
+Minor enhancements: 
+1. Added ShowIP command to dump user list with IP addresses.  Format:
+   <callsign> <tab> <IP address> <tab> <'S' | 'R' | 'E'><eol>
+   List is terminate by a blank line.  The final character indicates the
+   users protocol, SpeakFreely, RTP, or EchoLink.  The callsign field will
+   also contain the user's IP address if the protocol does not provide a
+   callsign.
+
+####################################
+Changes in version 0.81, 1/8/2005:
+
+New features:
+1. Tbdcmd can now display a timestamp before each line of chat text
+   enabled by the new '-t' command line switch.
+
+Minor enhancements: 
+1. Give priority to repeater attribute over conference attribute
+   in autolurking code.
+
+Bug fixes:
+1. Fix rounding errors in AVRS frequency conversion in so 444.300
+   doesn't become 444.299.
+
+2. Fix typo and add "warning" to error message about failure to
+   enable core (not "code") dumps.  Apparently Fedora has changed
+   something as this always fails with "Invalid argument".
+   
+3. Corrected bug in tbdcmd which caused it to exit immediately when
+   run without a console.
+   
+4. Modified new tbdcmd misfeature that suppressed "error" codes of 
+   zero to only suppress them when tbdcmd is run interactively.
+   
+5. Corrected bug caused by uninitialized select timeout structure in
+   tbdcmd.  This bug only occurred on a few systems, thanks to ke4tte
+   for providing access to one where it did so I could debug it.
+   
+####################################
+Changes in version 0.80, 11/28/2004:
+
+New features:
+1. Added text messaging support to the command interface. The new ".chat" 
+   command is used to enable and disable chat mode for compatibility with
+   existing scripts.
+
+2. Added support for reporting the repeater or link location, frequency, 
+   power and other parameters to EchoLink's server.  (Only useful for nodes 
+   with associated RF equipment)
+
+Minor enhancements: 
+1. Modified EchoIRLP detection to prevent triggering by usage of nonstandard 
+   ports for Speak Freely.
+
+Bug fixes:
+1. Add a timeout to tbdcmd so it won't hang indefinitely if used when tbd
+   isn't running.  If thebridge does not send a response to a command within
+   10 seconds an error code of TBD_ERR_TIMEOUT is returned to the script.
+
+####################################
+Changes in version 0.78+, 9/11/2004: (limited Beta release)
+
+New features:
+1. Added .refresh command to force thebridge to refresh the in memory (and
+   on disk if enabled) station list.
+
+Minor enhancements: 
+1. Added a "status" option to the .busy command to indicate a busy status
+   to the directory servers, but continue to accept connections.
+
+Bug fixes:
+1. Don't dump connections to Speak Freely clients on connections we started.
+   This prevents problems staying connected to reflectors with misconfigured
+   clients speaking the wrong compression format.
+
+####################################
+Changes in version 0.78, 9/2/2004: (limited Beta release)
+
+Minor enhancements: 
+1. Enable conference call checking for all configurations.  (The EchoLink 
+   servers no longer allow logins from thebridge with a "bare" callsign,
+   the callsign must be a repeater, link or conference name).
+
+2. Added patch from KF7FLY to improve the ability of EchoIRLP to track refused
+   outbound connections.
+
+3. Added IncludeAllHosts configuration file variable to force inactive hosts
+   to be included in the hosts file. Use this feature carefully, the IP 
+   address of hosts that are not currently logged in may be inaccurate 
+   especially for users with dialup connections.
+
+4. Changed the name of the sample configuration file included with the release
+   from tbd.conf to tbd.conf.sample to prevent accidently over writes of actual
+   configuration file when thebridge is updated.  Thanks to Diane Bruce, VA3DB.
+
+Bug fixes:
+1. Removed code that attempted to deal with an IP address changes for 
+   logged in clients.  The code had bugs and was just about impossible to
+   test.  If your ISP randomly forces you to change your IP address it's
+   time to find a new ISP!  This code caused thebridge to crash if a logged
+   in user's IP address did change.  
+
+####################################
+Changes in version 0.77, 5/29/2004:
+1. Cosmetic only ... rebuild from source files committed to CVS today.
+
+####################################
+Changes in version 0.76, 5/13/2004 (limited Beta release)
+
+Bug fix:
+1. Corrected additional memory leaks.
+
+####################################
+Changes in version 0.75, 2/26/2004 (limited Beta release):
+
+Minor enhancements: 
+1. Added code to update the IP address of persistent clients when the client's
+   IP address changes in the directory.
+
+Bug fixes:
+1. Corrected memory leak created when compressed directory support was added.
+
+####################################
+Changes in version 0.74, 12/5/2003 (limited release EchoIRLP version):
+
+Minor enhancements: 
+1. Added requirement that callsign be either <callsign>-R, <callsign>-L, or
+   a conference style callsign when tbd is used with the EchoIRLP project.
+   
+2. Changed version string sent to EchoLink directory servers from v.vvB to
+   v.vvI when tbd is used with the EchoIRLP project.
+
+Bug fixes:
+1. Corrected an infinite loop that occurred when a "play4 -u ..." command was
+   issued when a file was already playing for the specified user.
+   
+####################################
+Changes in version 0.73, 10/28/2003 (limited Beta release):
+
+Minor enhancements: 
+1. Added a -p option to the .mute and .unmute commands to allow a station to be
+   muted or unmuted more persistently.  Normally when a station is explicitly 
+   muted or unmuted the action applies current connection only.  If the station
+   disconnects and then reconnects he will return to the default mute state for
+   his station class.  The -p option causes the stations mute state to persist
+   across connections and disconnections as long as the station's callsign 
+   remains in the directory cache.  This feature may be useful in certain 
+   unusual circumstances when the a station class is muted, but there are
+   certain exceptions.
+
+2. Eliminated unused and unneeded fields from the UserInfo structure to reduce
+   memory requirements.  
+   
+3. Modified configuration file parser to accept both DOS and *nix end of line
+   conventions (*nix version only, Windoze version has always accepted both).
+
+Bug fixes:
+1. Added zlib subdirectory to include path so thebridge can be built on systems
+   that don't already have the zlib headers in /usr/include.
+
+2. Corrected a bug that caused the command ".mute -u" to mute conferences as
+   well as PC users.
+
+3. Removed the code added in 0.70 that prevented the conference from 
+   connecting to itself.  This feature caused problems for the EchoIRLP project.
+   
+4. Corrected bug which caused the play4 pseudo user to timeout when the 
+   BlabOffTimer was enabled.
+   
+####################################
+Changes in version 0.72, Sept 9, 2003:
+
+Minor enhancements: 
+1. Changed the automute and autolurk logic to accomodate new EchoLink clients
+   which can be repeaters or links *as well* as conferences.  The conference
+   attribute is now the highest priority.  If conferences are muted, but not
+   links and a user is both a conference and a link he will now be muted.
+   
+2. Added a "-e" flag to the .mute and .unmute flags to allow EchoLink 
+   conferences to be treated separately from tbd conferences.  The original
+   -c flag now effects tbd conferences only.
+
+Bug fixes:
+1. Corrected infinite loop that occurred on some platforms when the command
+   ".mute -?" (or any other undefined flag) was entered.
+
+2. Corrected a crash that occurred when an user attempted to connect to a
+   conference when it was busy or at the configured maximum number of users.
+
+####################################
+Changes in version 0.71, Sept 7, 2003:
+
+Bug fixes:
+1. Corrected automatic muting of new stations that connect when the 
+   .mute -c, -r or -u flags are in effect.
+   
+####################################
+Changes in version 0.70, Sept 6, 2003:
+
+New features:
+1. Added the ability to execute a user provided script or program when 
+   "interesting things" happen.
+   
+2. A new utility, tbdcmd, provides the ability for a user to issue commands
+   to thebridge locally.  The tbdcmd may be used interactively or via scripts.
+   
+3. Added the "StartupCmd" configuration file variable to allow commands to 
+   be executed automatically at startup.
+
+4. Added a ".play4" command that allows a recorded file to be played everyone
+   or a specified user.
+
+Minor enhancements: 
+1. Added the configuration variable EmailAdr to provide contact information to 
+   the EchoLink support team.
+   
+2. Added ".busy" command to put the conference into a busy state.
+
+3. Modified snprintf usage to handle more flavors correctly. (The C99 standard
+   defined the behaviour differently than earlier implementations.)
+
+4. Added a ".message" command to allow scripts to send text messages to
+   conference users.
+   
+5. Added an option to disconnect all users to the ".disconnect" command.
+
+6. Added a new configuration variable HelpFile that may be used to replace
+   the builtin help text with a customized version.  This feature may be
+   used to replace the english help text with another language.  It may also
+   be used to to document functionality added by external scripts.
+   
+7. Added a new configuration variable SF_ReplyPort that may be used to 
+   configure thebridge to talk to a Speak Freely or RTP client on the same 
+   host.
+
+9. Added the ability to .connect to a node by node number.  Previously
+   numeric arguments were assumed to be IP addresses (yes 9999 is a valid,
+   if unusual IP address).  Now numeric arguments that do not contain dots 
+   are assumed to be node IDs.
+
+8. Added the ability to use thebridge's built in logging under *nix as well as 
+   Windows.  This may be useful when it is not possible or desirable to start 
+   thebridge as root to allow it to open the syslog.
+
+10. Added support for compressed and differential stations list downloads.
+
+11. Added new configuration variable WelcomeDelay to specify a delay between
+    when the user connects and when the welcome file starts playing.  This
+    provides time for EchoLink client to complete its connection announcement
+    before the welcome file starts.  Thanks to W7NTF for suggesting this
+    feature.
+    
+12. Added -r, -c, -u, -s, -t, and -a options to the .mute and .unmute commands 
+    to mute and unmute groups of stations with one command.  This option may 
+    be useful to enforce order on large nets.
+    
+    Note: New stations connecting to the conference will be muted 
+    automatically when a group mute for their station type is in effect.
+    
+13. Added the conference name to responses to commands issued with the .quote
+    command so that responses from multiple conferences can be differentiated.
+    
+14. Added code to automatically disconnect stations that send too many 
+    duplicate text messages. Duplicate text messages can be generated 
+    when a number of conferences are connected together such that they 
+    form a closed loop. The automatic disconnect logic is intended as a 
+    safety measure to ensure that all available bandwidth is not consumed 
+    by a text message feedback loop.
+    
+15. Modified the SDES generation to include the callsign of the station 
+    talking in the name field.
+    
+Bug fixes:
+1. Corrected a bug that caused Bind2IP to fail randomly on FreeBSD.
+
+2. Corrected a bug that prevented thebridge from operating properly on NT 4.0.
+   Thanks to K1RFD for the fix and N4LED for reporting the bug and testing
+   the fix.
+   
+3. Corrected the way the group membership was changed when thebridge changed
+   identities from root to the RunAsUser user.  Previously on thebridge would
+   not become a member of secondary groups it belonged to, only the primary
+   group listed in the password file.
+
+4. Corrected a bug which caused the bulletin list order to change when
+   thebridge was restarted.  Thanks to KB5MU for reporting this 'feature'.
+
+5. Modified code to prevent a directory server logout on exit when logins 
+   are disabled.
+
+6. Modified code to pass local users SSRC on unmodified.  Previously local
+   user's SSRC was changed to the SSRC of the conference for audio loop
+   detection.
+
+7. Modified RTCP handler to fully process all packets received.  Previously
+   the user's callsign and name was extracted when the user first connected
+   and never looked at again.  This prevented the dynamic information generated
+   by the new EchoLink client from being displayed from the name field.
+   
+8. Corrected a number of portability problems which prevented thebridge from 
+   compiling or running on the Alpha platform.  Thanks to WB3FFV for making 
+   his Alpha box available for debugging.
+
+9. Revised the code that attempted to break text messaging conference loops.
+   The previous loop detection code was only effective for simple loops where
+   each conference was in the loop, but not when leaf conferences were present.
+   Additionally messages generated by users when they disconnected (such as 
+   inactivity timeouts) would loop even in the simple case. The new code 
+   maintains a list of messages relayed recently and drops any duplicates 
+   that are detected.
+
+10. Added code to clear the waiting for response to .quote'ed command state 
+    after 30 seconds. Previously this state was not cleared resulting in 
+    sysops receiving station lists from connected EchoLink conferences.
+    
+11. Added code to prevent the conference from connecting to itself.  The
+    reason this occurs occasionally (once or twice a month) on some systems
+    is unknown.  Apparently no harm comes of it, but it sure looks strange
+    on the station list.
+    
+Known Bugs:
+1. Stations listening to recorded files are able to transmit during pauses,
+   but are not shown on the station list.
+
+2. Welcome file playback does not work correctly for non-EchoLink clients.
+
+####################################
+Changes in version 0.52, May 28 2003:
+
+New features: None, bug fix release.
+
+Minor enhancements: None, bug fix release.
+
+Bug fixes:
+1. Corrected belch filter bug that was introduced by the addition of the 
+   timeout timer feature in 0.51.  If the belch filter was enabled only
+   PC clients were able to talk, repeaters, links and other conferences 
+   (potential belchers) were not.
+2. Corrected bug in RTP_Rx() which would could cause memory corruption if 
+   recvfrom() returned an error.  Thanks to KD5MU for discovering and
+   reporting this problem by code inspection.
+
+Known Bugs:
+1. Stations listening to recorded files are able to transmit during pauses,
+   but are not shown on the station list.
+
+2. Welcome file playback does not work correctly for non-EchoLink clients.
+
+####################################
+Changes in version 0.51, April 30 2003:
+
+New features:
+1. Added a new "auto lurk" feature that returns lurking users to lurk mode
+   after a (configurable) period of inactivity.
+
+2. Added the ability to automatically place users into the lurk mode after
+   a (configurable) period of inactivity.  This may be enabled for 
+   "normal users", conferences, -L, and -R stations independently.  
+
+3. Added a ".monitor" command which allows a client to be monitored.  This is
+   basically the opposite of the ".mute" command, the monitored client can talk,
+   but not listen.  This is useful in certain (unusual) situations such as 
+   the recent shuttle disaster when you want to listen to a conference, but 
+   while ensuring local traffic does not interrupt it.
+
+4. Added a timeout timer to enforce a maximum transmission length.
+
+Minor enhancements:
+1. Added a configuration file variable "Bind2IP" that allows thebridge to
+   be configured for a specified interface rather than all available 
+   interfaces.  This variable should be set on multihomed hosts to ensure that
+   thebridge uses the same IP address to talk to clients as it does to talk
+   to the EchoLink directory server.  For security reasons the EchoLink client 
+   will not talk to a client that has a different IP address than that listed 
+   by the EchoLink directory server.
+   
+2. Added a configuration file variable "AppName" that allows an alternate
+   application name to be specified for logging and filenaming purposes.  This
+   along with the Bind2IP variable allows multiple copies of thebridge to be
+   run on a single multihomed host.
+
+3. Added a configuration file variable "RunDir" that allows the directory were
+   thebridge's PID file is created to be specified.  The default is /var/run.
+   (This only applies to *nix versions of thebridge)
+
+Bug fixes:
+1. Corrected a bug in the hourly statistics logging which occurred when 
+   RTP was enabled.  The hourly statistics included data for only RTP or
+   EchoLink depending on the protocol of the first packet received after
+   at the start of a new hour.  The statistics reported are now combined 
+   totals for all protocols.
+
+2. Added a terminating NULL to the string returned by a version query.
+
+3. Corrected a bug which prevented the station list from being sent on connect
+   when thebridge was configured to play a welcome file on connect.
+
+4. Corrected a bug in the ACL handling that prevented .allow'ing a EchoLink 
+   client by IP address.
+
+5. Fixed (possibly, not tested) a bug which sent a verify command to a iLink
+   directory server.  The verify command is not supported by iLink servers,
+   only EchoLink servers.  (Is anyone using the thebridge with the iLink 
+   private server package ???  If not this support will be dropped in future
+   releases since I can no longer test it.)
+
+Known Bugs:
+1. Stations listening to recorded files are able to transmit during pauses,
+   but are not shown on the station list.
+
+2. Welcome file playback does not work correctly for non-EchoLink clients.
+
+####################################
+Changes in version 0.46, Jan 5 2003:
+
+Minor enhancements:
+1. Thebridge now reports a valid version number to the directory server. 
+   Previously a hard coded version string reported by old iLink clients
+   was sent.
+
+Bug fixes:
+1. Another bug in the directory server communications routine which could cause 
+   an infinite loop when the connection to the EchoLink directory server failed
+   has been fixed.  The infinite loop included log messages and since the log 
+   file size limit check was ineffective against infinite loops huge log files
+   could be created very quickly.
+2. The code added to cause thebridge to exit if the log file exceeds 10mb in 
+   now causes an intentional null pointer dereference instead of attempting
+   to exit gracefully.  The assumption here is that the log has grown this
+   large due to an infinite loop and a graceful exit is impossible. (Windows 
+   version only).
+3. Restarting thebridge when the LogFileRolloverTypes is 3 or 4 no longer 
+   deletes the current day's log. (Windows version only)
+4. User authentication failures are no longer cached, only successes.  (Yes
+   this was documented as being in 0.45, but somehow the changes were lost
+   before release, sigh).
+
+Known Bugs:
+1. Stations listening to recorded files are able to transmit during pauses,
+   but are not shown on the station list.
+
+2. Welcome file playback does not work correctly for non-EchoLink clients.
+
+####################################
+Changes in version 0.45, Jan 1 2003:
+
+Minor enhancements:
+1. User authentication failures are no longer cached, only successes.  
+   Previously if a user attempted to connect to thebridge immediately after
+   starting the EchoLink client it was possible for him to be locked out
+   of thebridge until the next station list update occurred (by default every
+   310 seconds).
+2. Added code to detect certain infinite loops, log them and shutdown the
+   bridge.  (With any luck this code will never be exercised, grin).
+3. Timeouts have been added to all directory server communications routines.
+4. Added administrator command .shutdown to remotely shutdown thebridge.
+5. Added administrator command .quit to remotely shutdown thebridge without
+   logging out of the directory servers.
+6. Added administrator command .crash to cause a null pointer dereference
+   to cause a code dump.  (This can be useful for debugging certain problems).
+7. Added code to cause thebridge to exit if the log file exceeds 10mb in size
+   (Windows version only).
+
+Bug fixes:
+1. The Windows log file is now closed and reopened (if logging is enable) after 
+   the configuration file has been read. Previously thebridge logged to 
+   "tbd.log" until midnight independent of the settings of the logging 
+   configuration variables.
+2. An bug in the directory server communications routine which could can an 
+   infinite loop when the connection to the EchoLink directory server failed
+   has been fixed.
+
+Known Bugs:
+1. Stations listening to recorded files are able to transmit during pauses,
+   but are not shown on the station list.
+   
+#####################################
+Changes in version 0.44, Dec 21 2002:
+
+New features:
+1. Added disk logging to the Windows version.
+2. Added ability to run thebridge as an NT service on Windows 2000 and later.
+3. Added option of playing a welcome message to users on connection to the
+   conference.
+4. Audio file playback now pauses between individual transmissions in the
+   recording with configurable timing.
+5. Added admin .quote command to allow commands to be sent to linked 
+   conferences.
+6. Added the ability to display a new users information (brag) sheet during
+   his first transmission.
+7. Added the ability to save user's brag sheets to disk.
+8. Added new user .about command to display a specified station's brag sheet 
+   on demand.
+9. Modified the ".mute ." command to mute stations on linked conferences.
+
+Minor enhancements:
+1. Added admin .rehash command to reload configuration file remotely.
+2. Added new hourly log entry showing current bandwidths, amount of traffic 
+   sent since boot and uptime.
+3. Added an option to dynamically maintain a *nix style host file of EchoLink 
+   users.
+
+Bug fix:
+1. Corrected premature playback termination when thebridge is run on (very?)
+   fast computers.
+2. Corrected playback problems which occurred after approximately 20 minutes of
+   playback (by implementing pauses during playback).
+3. Implemented EnableDiskCommands configuration file variable as documented,
+   previously it was ignored.
+4. Files created by the .test command are now deleted upon completion of the
+   playback.
+
+#####################################
+Changes in version 0.43, Nov 4 2002:
+
+Bug fix:
+1. Corrected bug introduced by forking a separate process for DNS updates
+   which corrupted recordings.  This bug only effected the *nix version since
+   the Windoze version does not fork.
+
+#####################################
+Changes in version 0.42, Nov 2 2002:
+
+Upgrading:
+1. The Working directory configuration file variable is no longer optional.
+   thebridge will not run unless the WorkingDir variable is set to a valid
+   subdirectory.  See the new configuration variable EnableDiskCommands if
+   you wish to disable user commands that access the disk.
+
+New features:
+1. Added support for private conferences.
+2. Added a belch filter to further help suppress repeater "bounce".  The belch
+   filter sets a minimum keyup time for -L and -R stations before their audio
+   is passed.
+3. System security has been enhanced by checking the IP address and callsigns 
+   of connecting stations with the Echolink directory server.
+
+Minor enhancements:
+1. Added support for Speak Freely and RTP protocols in addition to EchoLink.
+2. User commands that use the disk (.test, .play) may now be disabled without 
+   disabling the access control list.
+3. Stations no longer need to be logged in to be added to the access control 
+   list.
+4. Thebridge may now be used with ilink directory servers.
+5. The .help command is now accepted without a leading period, sigh.  The
+   user is advised that all commands except help require a leading period.
+6. Pause time and doubling warning messages are not longer sent from one
+   conference to another.
+7. Muted stations are now marked as muted in the station list.
+8. Sysops may now change the lurking mode of other stations.
+9. Sysops may now suppress text chat messages.
+10.The Windows version of thebridge now wait for a key to be pressed before
+   exiting after an error message has been displayed to give the user
+   a change to read the message.  Go ahead and double click away ...
+
+Bug fixes:
+1. Most DNS hostname lookups are now performed on by a separate process 
+   (*nix), or thread (Windoze).  This prevents the conference from stalling
+   and losing audio when the DNS server is slow.
+2. Failure to enable core dumps is no longer a fatal error.
+
+
+#####################################
+Changes in version 0.37, Sep 29 2002:
+
+New features:
+1. Added the ability to disable the lurking feature.
+2. A new operator level called "sysop" was added.  Sysop's have access to a
+   subset of the administrator commands.
+3. Added the ability to enforce a mandatory gap between transmissions to
+   suppress repeater "bounce", allow time for timeout timers to reset, and
+   give repeaters and links time to drop the connection.
+4. Added .users command that lists all users along with their attributes.
+
+Minor enhancements:
+1. A message is now sent to administrators and sysops when a .connect request
+   is refused by the target station.
+2. The format of the doubling warning message has been changed to make it
+   compatible with older versions of the EchoLink client.
+3. The .mute command now lists stations that are muted if a target station is
+   not specified.
+4. Added '.' as a shorthand for currently talking station to the .mute command.
+
+Bug fixes:
+1. Text messages from stations that are .muted are now forwarded.
+2. Certain invalid RTCP packets no longer crash the Windows version.
+3. An error in the format of the RTCP BYE packet was corrected.
+4. Modified TimeLapse() to handle overflows properly.  This bug was causing
+   the bandwidth calculations to be bypassed on occasion.
+
+
+#####################################
+Changes in version 0.34, Sep 15 2002:
+
+New features:
+1. Added new administrator commands .connect and .disconnect to allow multiple
+   conference bridges to be linked.
+2. Added additional statistics to the .stats command.  The receive and transmit
+   bandwidth is now measured constantly and peak values are retained for 
+   display. The number of packets, bytes received and transmitted are counted. 
+3. The Echolink client's "Request version Information" feature is now supported.
+4. Added configuration file variables to set the contents of the banner area.
+5. Added configuration file variables to allow current and maximum user counts 
+   to added to the location string and conference ID line.
+6. Added configuration file variable to specify location of temporary files.
+   If this variable is not set the commands which create temporary files are
+   disabled.
+7. Added a configuration file variable to specify the user ID thebridge should
+   run under. (non-Windows version only)
+8. Added new user command .stop to allow bulletin playback to be terminated
+   without disconnecting.
+
+Minor enhancements:
+1. The bulletin list now includes the playback time for each bulletin.
+2. The doubling warning message now includes the callsign of the person that
+   is talking.
+3. Timestamps are now included in recording at the beginning of each audio
+   segment.
+4. The file format of recordings has been modified to make it platform 
+   independent.  Previously values were written in native format, now they
+   are written in network order.
+5. The way SDES packets are sent to clients was changed to make connections
+   a bit more robust.  Previously SDES packets were only sent in response to
+   SDES packet received from the client.  Now SDES packets are sent 
+   periodically.
+6. Changed the way the station list works (yet again).  When a station 
+   transmits he is now moved to the top of the station list and remains there
+   after he stops talking.
+7. Added the configuration file variable to enable/disable the display of the 
+   "<SB>" string.
+8. Added code to remove any leading path from filename for record commands.
+9. Modified DeltaTime2String() to suppress display of days when days is zero.
+
+Bug fixes:
+1. Correct a bug which would cause a crash if a user disconnected while 
+   listening to a recorded bulletin.
+2. Corrected bug in the message logged when an attempt to resolve the directory
+   server's IP address failed.
+
+#####################################
+Changes in version 0.26, Aug 31 2002:
+
+New features:
+
+1.  Added new administrator commands .admin, .admins, .record, .list, .mute, 
+   .kick, .ban, and .info.
+2.  Added new user commands .list, .play, and .stats.
+3.  Modified the station list so that new stations enter at the top of the list.
+4.  Modified the station list so the station talking is always displayed.
+5.  Added total number of connected stations to top of station list.
+6.  Added code to send a warning message to stations that double.
+7.  Added support for backup directory servers.
+8.  Modified all log entries to use %m for error message display when available.
+9.  Added amount to time client was connected to log entries.
+10. Added (optional) welcome message at bottom of station list.
+
+Bug fixes:
+
+1. Corrected sockets resource leak. (Crashed Windows version)
+2. Corrected dirserver connection hang on Windows version.
+
+
+#####################################
+Changes in version 0.21, Aug 17 2002:
+
+New features:
+1. Added .help, .?, .test, and .version commands.  
+2. Added abilty to record and playback audio from files.
+3. Added code to automatically exit lurking mode when a lurker talks.  
+4. Added code to enable core dumps (thanks to WD4NMQ).  
+
+Bug fixes:
+1. Fixed a bug that allowed timed out talker to keep transmit token forever.  
+2. Corrected a bug that allowed two stations to talk at once when they doubled.
+3. Removed \r from end of commands before logging them.
+4. Removed some left over debug info from log.
+
+
+####################################
+Changes in version 0.18, Aug 8 2002:
+
+Initial release
+

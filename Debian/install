@@ -1,0 +1,14 @@
+#!/bin/sh
+#
+# description: install thebridge startup scripts on Debian Linux (LSB System)
+# $Id: install,v 1.1 2012/12/10 06:00:13 wb6ymh Exp $
+
+set -x
+cd ..
+make install
+cd Debian
+
+ln -s /usr/local/libexec/tbd /usr/sbin
+cp tbd /etc/init.d/
+
+update-rc.d tbd defaults

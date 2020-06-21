@@ -1,0 +1,488 @@
+# $Id: tbd.conf.sample,v 1.10 2008/07/23 14:55:05 wb6ymh Exp $
+
+;Lines beginning with ';' or '#' are comments, if you decide to set any of the
+;optional settings be sure to delete the leading ';' character before the 
+;configuration variable.
+
+; ConferenceCall - Callsign or name of Conference server.  Required.
+; The callsign MUST be entered in UPPERCASE.  The callsign must be either
+; a link "-L", repeater "-R" or conference name "*{name}*", the EchoLink
+; directory server will no longer accept a login from thebridge using just
+; a "bare" callsign.
+; If you plan to run an EchoLink conference regularly using theBridge,
+; please use a conference-server callsign instead of your own call.  
+; See www.echolink.org/el/conf.htm for more info.
+ConferenceCall = W1AW
+
+; ConferencePass - EchoLink password. Required.
+ConferencePass = CW
+
+; ConferenceQth - location or info string displayed on station list. Required.
+ConferenceQth = Newington, Ct.
+
+; Working directory.  This is where thebridge creates its files. Required.
+; Make sure that the specified directory exists and that the user account
+; used to run TBD has read and write privileges in it.
+WorkingDir = /usr/home/tbd
+
+; Your email address.  This email address is sent to the EchoLink directory 
+; server and is only visible to the EchoLink support group. An email address 
+; is required so that EchoLink Support can contact you about validation.
+; Required.
+EmailAdr = w1aw@arrl.net
+
+###############################################################################
+;None of the following are required, they may be used if desired to 
+;override the default settings.
+
+; If you do not wish thebridge users to be able to write to the disk set
+; this variable to zero.
+;EnableDiskCommands = 0
+
+; Administrator password.  Please do not use a "valuable" password here,
+; it is sent in clear text via UDP to the RTP port.  i.e. it can be sniffed.
+; You have been warned.
+;AdminPass = secret
+
+; Sysop password.  The sysop password is a lower level password that is 
+; typically used by net control stations.  It provides to some, but not all,
+; of the commands available to Administrators. Please do not use a "valuable" 
+; password here, as with the administrator password it is sent in clear text 
+; via UDP to the RTP port.  i.e. it can be sniffed.
+; You have been warned again. 
+;SysopPass = anothersecret
+
+; User ID for thebridge to run under.  (Ignored for Windows)
+; If thebridge is started by the system startup scripts it will probably
+; be running as the superuser.  This is not necessary and is very undesirable
+; from a system security standpoint.  If RunAsUser is set thebridge will 
+; change its userid to that user after opening the syslog. If this is not 
+; set thebridge will attempt to change userid to the user "tbd".
+; 
+;RunAsUser = tbd
+
+; Conference ID - Text shown at the top of the station list
+;ConferenceID = My Conference server
+
+; Banner - shown at the bottom of station list.
+; Note: The banner is pushed off the bottom of the station list if needed
+; to make room for users callsigns.  The ConferenceID is always displayed.
+; Use the screen the way you like, but I'd recommend that the ConferenceID
+; be kept to one line and any other things you would like to display be
+; put in the banner area.  Comment out the following lines if you don't want
+; a banner.  Note unlike most variables there can be more than one Banner
+; variable in the configuration file, each one simply adds another line.
+
+Banner = Welcome to thebridge conference.
+Banner = Type ".help" for a command list.
+Banner = See http://CQiNet.sf.net for more info.
+
+; These variables should be set to the same values as you use with your
+; EchoLink client.  The first server should be the one that's closest to you.  
+
+; Hostname of primary directory server
+;DirServerHost = server1.echolink.org
+
+; Hostname of directory backup server #1
+DirServerHost1 = server2.echolink.org
+
+; Hostname of directory backup server #2
+DirServerHost2 = server3.echolink.org
+
+; Hostname of directory backup server #3
+DirServerHost3 = server4.echolink.org
+
+; Maximum amount of time in milliseconds between RTP audio packets before 
+; assuming that a conference member has stopped talking.
+;ConfAudioTimeout = 800
+
+; Maximum amount of time in seconds between RTCP control packets before 
+; assuming that a conference member has left the conference.
+;ConfMemberTimeout = 40
+
+; Number of seconds between logins (status updates) to the directory server
+; Set to zero to disable logins
+; For use with EchoLink, do not use any value other than 360
+;LoginInterval = 360
+
+; Number of seconds between station list refreshes
+; Set to zero to disable station refreshes
+; For use with EchoLink, do not use any value less than 310
+;StationListInterval = 600
+
+; Maximum number of simultaneous conference clients.  Each client requires
+; approximately 17.5k bps of upstream bandwidth, the default of 8 users is 
+; about right for a cable modem or dsl line.  Set this to no more than
+; n = (Upstream BW/17500) + 1;
+; or for a T1 line (1.54 mb)
+; n = (1540000 / 17500) + 1 = 89
+;MaxConferenceClients = 8
+
+; Set this to append "<SB>" to conference ID when no one is talking.
+; (Like the iLink conference server)
+;SB_Enable = 1
+
+; Set this to append "[number of users]" to the conference ID line.
+;UserCountEnable = 1
+
+; Set this to include the maximum number of users in user display after
+; conference ID.  (Requires UserCountEnable to also be set)
+; Appends "[number of users/Maximum users]" after conference ID line.
+;MaxCountEnable = 1
+
+; Set this to append the user count(s) after the location string in the
+; directory server listing.  UserCountEnable and MaxCountEnable above
+; control the format.
+;UserCountInLocation = 1
+
+; Set this to the minimum number of milliseconds that stations must wait
+; between transmissions.  Any transmissions made during this mandatory pause 
+; interval will be muted.  This parameter may help prevent repeater "bouncing" 
+; that occurs when multiple repeaters or link stations are logged into a 
+; conference room with poor operating parameters.  
+;
+; It will also ensure that there's a break between transmissions to allow 
+; simplex links to leave the conference
+; This variable may also be set using the pausetime command.
+;PauseTime = 1750
+
+; Set this to the minimum number of milliseconds that -L and -R stations
+; must transmit before being recognized.  This parameter may help prevent
+; repeater "bouncing" that occurs when multiple repeaters or link stations
+; are logged into a conference room with poor operating parameters.
+; This variable may also be set using the belchfilter command.
+;BelchTime = 2000
+
+; Set this if you are thebridge with AAC Management LTD's IL-PRO directory
+; server.  DO NOT SET this if you are running on the standard EchoLink
+; directory server.  Make sure you also set DirServerHost to the IP address
+; or host name of your directory server.
+;iLinkDirServer = 1
+
+; Age of DNS cache in seconds before it is updated.
+;DnsUpdateInterval = 900
+
+; Set variable to create a private conference.  A private conference will
+; be listed in the directory server as "Private conference" and will accept
+; connections only from stations which have been added to the access control
+; list.
+;PrivateConference = 1
+
+; This variable specifies how many seconds a user's record remains in memory 
+; after he has logged out of the EchoLink system.
+;InactiveDirTimeout = 51000
+
+; This variable controls how often the log file is rolled over.
+; 0 - logging disabled. (The Unix version will use syslog for logging)
+; 1 - Never: single logfile, filename = tbd.log
+; 2 - Never: new logfile opened everyday, filename = tbdmmddyy.log
+; 3 - Daily: new logfile opened everyday, filename = tbd.log, tbd.bak
+; 4 - Weekly: new logfile opened everyday, filename = mon.log, tues.log, ...
+;
+;LogFileRolloverType = 1
+
+; This variable controls the logging detail:
+;       0 - log everything
+;       1 - log warnings and errors only
+;       2 - log errors only
+;
+; (not implemented currently, everything is logged)
+;LogLevel = 0
+
+; Set this variable to enable support for full duplex operation via the 
+; conference.  When full duplex is enabled packets received from full 
+; duplex capable stations are forwarded to other full duplex capable stations 
+; even if someone has "taken the floor" and is talking. Currently the 
+; only client software that supports full duplex via a conference is 
+; thelinkbox. 
+;FullDuplex = 1
+
+###############################################################################
+; The following variables control file playback
+;
+; These variables control the pauses between transmission when playing
+; back recordings. Times are specified in seconds.
+;
+; The original pauses between transmission are unmodified when MaxPlayBackPause 
+; is set to a large value and MaxPlayBackPause is set to zero.
+;
+; The purpose of these variables are to allow pauses to either be compressed
+; or expanded for playback purposes.  For example setting MinPlayBackPause to
+; 5000 (5 seconds) will expand pauses between transmission to 5 seconds to
+; provide breaks to allow half duplex repeater links to be dropped during 
+; playback.
+;
+; On the other hand setting a MaxPlayBackPause allows long pauses to be 
+; shortened.
+;
+;MaxPlayBackPause = 5
+;MinPlayBackPause = 0
+
+; This variable sets a maximum uninterrupted transmission length for file
+; playback.  If a recording exceeds this limit a pause of MinPlayBackPause
+; seconds is inserted and then the playback resumes.  Time is specified in
+; seconds.
+;MaxPlayWithoutPause = 600
+
+; This variable specifies a welcome file to be played to users when they
+; connect to thebridge.  The specified file MUST be in thebridge's internal 
+; format.  You can create a suitable welcome file by using thebridge's
+; .record command or by using the tbdcnv utility (available separately).
+; 
+;WelcomeFile = welcome.tbd
+
+; This variable specifies the number of seconds to wait after the user
+; connects before the welcome message is played.  This provides time
+; for any voice announcements from the EchoLink client to complete.
+; NOTE: Any activity on the conference before the welcome file starts playing
+; will cancel the welcome message.  This prevents the welcome message from
+; playing in the middle of a live conversation.
+;
+;WelcomeDelay = 0
+
+; This variable specifies the number of seconds to wait after the conference
+; becomes free before bulletins queued with the .play4 command and using the 
+; -i flag command are played.
+;IdleTimeout = 0
+###############################################################################
+
+; If this variable is nonzero thebridge will save the information file 
+; (brag sheet) for connecting stations in files named "<callsign>.info".
+;
+;SaveInfoFiles = 0
+
+; If this variable is nonzero the users information file (brag sheet)
+; will be displayed instead of the usual station list the first time the
+; user transmits.
+; 
+;ShowStationInfo = 0
+
+; Set this variable to the IP address you wish thebridge to bind to. 
+; If this variable is not set then thebridge will listen to all available 
+; interfaces, this is normally what you want.
+;Bind2IP = 1.2.3.4
+
+###############################################################################
+; The following variables maybe be used to enable connectivity to non-Echolink
+; clients such as Speak Freely.  Since IRLP is based on Speak Freely this
+; allows suitably configured IRLP nodes to connect to the conference.
+
+; Set this variable to allow connections from Speak Freely or RTP clients.
+;SF_Enable = 1
+
+; Set this variable to a password that to be used by Speak Freely or
+; RTP clients to gain access to the conference.
+;RTP_Pass = yetanothersecret
+
+; Set this variable to specify a non-standard input port for RTP and 
+; Speak Freely and RTP clients.  This may be useful to allow multiple RTP 
+; applications to be run on a single host.  Note: the RTP spec requires this 
+; to be an even port, the associated control port will be the next (odd) port.
+;SF_Port = 2074
+
+; Set this variable to specify a non-standard port for RTP responses for 
+; Speak Freely and RTP clients. 
+;SF_ReplyPort = 2074
+
+; Set this variable to the value to be sent as the user's full name.
+; If the variable is not sent then ConferenceCall will be sent instead.
+;FullName = John Q Ham
+
+; Set this variable to the IP address you wish thebridge to bind to for
+; Speak Freely conferences. If this variable is not set then thebridge will 
+; listen to all available interfaces, this is normally what you want.
+;SFBind2IP = 5.6.7.8
+
+; Set this variable to specify the codec accepted by the conference.
+; Packets from clients running other codecs are not be relayed to conference 
+; members.  The default value (GSM) is normally what you want for an EchoLink
+; conference.  The other values may be used when using thebridge as an
+; IRLP reflector or as an "off grid" conference.
+; Currently acceptable values are:
+; 0 - PCMU / uLaw / uncompressed
+; 3 - GSM (only codec supported for EchoLink cleints)
+; 5 - ADPCM
+; 
+;CompressionType = 3
+
+###############################################################################
+; The following variables maybe be used to enable connectivity to suitably 
+; configured Asterisk nodes via chan_rtpdir.
+
+; Set this variable to allow connections from Asterisk. This variable is
+; also set dynamically by the .connect and .disconnect commands.
+;AsteriskEnable = 1
+
+; Set this variable to specify the port thebridge listens to for data from 
+; Asterisk.  Asterisk must also be configured to send to this port.
+;AsteriskPort = 4570
+
+; This variable may be set to require that Asterisk data come from the specfied 
+; IP address for security.  If it is not set then thelinkbox will accept data 
+; from any address. If the Asterisk node is running on the same machine as 
+; thelinkbox set this to 127.0.0.1.
+;AsteriskIP = 127.0.0.1
+
+; Set this variable to the IP address you wish thelinkbox to bind to for
+; Asterisk traffic. If this variable is not set then thelinkbox will listen 
+; to all available interfaces, this normally what you want.  If the Asterisk 
+; node is running on the same machine as thelinkbox set this to 127.0.0.1 
+; for added security.
+;AsteriskBind2IP = 127.0.0.1
+
+; This variable defines the name of the Asterisk connection.  This name is
+; displayed in the station list for EchoLink users and is used to .connect 
+; or .disconnect the Asterisk link.
+;AsteriskDesc = Asterisk
+
+###############################################################################
+
+; Set this variable to the number of seconds after last activity before 
+; stations are automatically put into the lurk mode.
+;AutoLurkTimeout = 900
+
+; Set this variable to automatically put stations into the lurk mode after 
+; AutoLurkTimeout seconds of inactivity.  By default stations are only put
+; into the lurk mode after a timeout if the station specifically requested 
+; that mode by entering ".lurk".
+; Bit map:      1 - Autolurk -R stations
+;               2 - Autolurk -L stations
+;               4 - Autolurk "Normal stations"
+;               8 - Autolurk other conferences
+; i.e. Set DefaultAutoLurk to the sum of options you wish to enable, 
+; for example: 0 = autolurk disabled, 3 = autolurk just -L and -R, 
+; 15 = autolurk everyone.
+;DefaultAutoLurk = 0
+
+; Set this variable to the maximum allowable transmission time.  A value
+; of zero disables the timeout.
+;BlabOffTimer = 0
+
+; Set this variable to an alternate application name to be used for logging
+; purposes.  This is useful when running multiple copies of thebridge on a
+; single host. (*nix only)
+;AppName = tbd1
+
+; Set this variable to an alternate directory to use for PID files.  This
+; might be useful when running thebridge without root privileges. (*nix only)
+;RunDir = /var/run
+
+; The following variable is used to execute commands on thebridge startup.
+; This may be useful to set initial conditions.  For example if you always 
+; want your conference room linked to your club's repeater you might
+; issue a connect command to bring the link up. Unlike most variables 
+; there can be more than one StartupCmd variable in the configuration file, 
+; each one simply executes another command.
+;
+; NOTE: Startup commands are executed approximately 1 minute after the first 
+; successful login to a directory server.  This delay is necessary to ensure
+; that the conference's IP address has had time to propagate to all of
+; the EchoLink directory servers before connect commands are issued.  
+; For security EchoLink nodes refuse connections from other nodes unless they 
+; are listed in the directory server.
+;StartupCmd = connect W1AW-R
+
+###############################################################################
+; The following variables maybe be used to enable 3rd party or user written
+; programs to interface with thebridge.  See SCRIPTING.txt for more details.
+
+; Set this variable to enable local scripting using the tbdcmd utility.
+;CmdPort = 5198
+
+; Set this variable to enable local chating the tbdchat utility.
+;ChatPort = 5199
+
+; Set this variable to point to a script/program to execute when "interesting"
+; events occur. 
+;EventScript = /home/tbd/myscript
+
+; Set this variable to point custom help file that will be displayed when the
+; user enters the '.help' command.  This may be used to document custom
+; commands.  Please be sure to include help for the built in commands as well.
+;HelpFile = /home/tbd/mycustomhelp
+
+; Set this variable to create a *nix style host file of EchoLink users.
+; The EchoLink node number is added after the IP address as a comment.
+;WriteHostFile = 1
+
+; Set this variable to included all hosts thebridge knows about in the hosts
+; file.  Normally only hosts that are currently logged in on the Echolink
+; directory server are included.  Use this feature carefully, the IP address
+; of hosts that are not currently logged in may be inaccurate especially
+; for users with dialup connections.  Hosts which are not logged in are
+; marked with "(off line)" after the EchoLink node number in the comment field.
+;IncludeAllHosts = 1
+
+; Set this variable to include the node's QTH in the hosts file.
+; NB: As of 6/29/2007 including QTH information in the hosts file breaks
+; the EchoIRLP scripts.
+;QthInHostsFile = 1
+
+; The Qth information (or information set by the Info command) can 
+; be replace with "In Conference <call>" or "Connected to <call>" when 
+; the node is connected.  Set the following variable to zero to enable
+; that feature.
+; 0 = never override ConferenceQth or .info command settings.
+; 1 = show connection state for conferences only.
+; 2 = show connection state for conferences and stations.
+;ShowStatusInInfo = 0
+
+###############################################################################
+
+; This variable specifies the maximum number of duplicate text messages
+; that may be received from a station before that station is automatically 
+; disconnected.  Duplicate text messages can be generated when a number
+; of conferences are connected together such that they form a closed loop.
+; There is code in thebridge which attempts to suppress this "feedback" 
+; but the detection logic is less than perfect.  Some versions of thebridge
+; are known to be unable to suppress loops of certain topologys.  The
+; automatic disconnect logic is intended as a safety measure to ensure that
+; all available bandwidth is not consumed by a text message feedback loop.
+; Although not recommended the automatic disconnection logic can be 
+; disabled by setting this variable to zero.
+;MaxDups = 100
+
+
+; The following variable controls the availability of the DTMF pad in the
+; stock EchoLink client.  By default the DTMF pad is disabled.  To allow
+; EchoLink users on a PC to send touchtones to the conference uncomment 
+; the following line.
+;EnableRemoteDTMF = 1
+
+###############################################################################
+; The following variables should only be set for an RF-connected nodes 
+; (thelinkbox and EchoIRLP nodes), as they make little or no sense for a 
+; conference room located in "Cyberspace".  If this information is supplied
+; it will be sent to the central EchoLink directory server so your node
+; will be listed on the http://www.echolink.org/links.asp page.
+
+; Set this varable to send node information to the EchoLink directory server
+;AvrsEnable = 1
+
+; Node location
+;Lattiude in degrees, negative values for the southern hemisphere
+;Latitude = 33.743386
+
+;Longitude in degrees, negative values west of the prime meridian
+;Longitude = -118.366453
+
+; Transmitter power in watts
+;TxPower = 10
+
+; Antenna height above average terrain in feet
+;Haat = 100
+
+; Antenna gain in DB
+;AntGain = 3
+
+; Heading of the main antenna lobe in degrees.
+; If antenna is an omni enter 0.0, if the antenna is directional and pointed 
+; due north enter 360.0.
+;AntDir = 0.0
+
+; Transmitter frequency in Mhz
+;Frequency = 146.52
+
+; Continous tone coded squelch system system frequency required to open
+; receiver's squelch. In Hertz.  Leave unset for carrier squelch system
+;CTCSS = 100.0

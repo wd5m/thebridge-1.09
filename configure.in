@@ -1,0 +1,88 @@
+# $Id: configure.in,v 1.46 2012/12/09 20:03:30 wb6ymh Exp $
+#
+
+AC_INIT(src/thebridge.c)
+AC_CONFIG_AUX_DIR(config)
+AM_CONFIG_HEADER(config.h)
+AM_INIT_AUTOMAKE(thebridge,1.09)
+AM_CONDITIONAL(LINK_BOX,false)
+AM_CONDITIONAL(USB_SUPPORT,false)
+AC_CANONICAL_HOST
+
+AC_ARG_WITH([readline],
+    [AS_HELP_STRING([--with-readline],
+      [enable support for readline])],
+    [],
+    [with_readline=no])
+    
+AC_ARG_WITH([dmalloc],
+    [AS_HELP_STRING([--with-dmalloc],
+      [enable dmalloc memory debugging support])],
+    [],
+    [with_dmalloc=no])
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_RANLIB
+
+dnl Checks for libraries.
+AC_CHECK_LIB(socket,socket)
+
+AC_C_BIGENDIAN([AC_DEFINE([BIG_ENDIAN_MACHINE], [1],[Define if your target is a big endian machine])],,
+        [AC_MSG_WARN([Target endian unknown.
+Please define BIG_ENDIAN_MACHINE in config.h for big endian targets])])
+
+LIBREADLINE= 
+AS_IF([test "x$with_readline" != xno],
+    [AC_CHECK_LIB([readline], [main],
+      [AC_SUBST([LIBREADLINE], ["-lreadline -lncurses"])
+       AC_DEFINE([HAVE_LIBREADLINE], [1],
+                 [Define if you have libreadline])
+      ],
+      [AC_MSG_FAILURE(
+         [readline test failed])],
+      [-lncurses])])
+      
+LIBDMALLOC= 
+AS_IF([test "x$with_dmalloc" != xno],
+    [AC_CHECK_LIB([dmalloc], [main],
+      [AC_SUBST([LIBDMALLOC], ["-ldmalloc"])
+       AC_DEFINE([HAVE_LIBDMALLOC], [1],
+                 [Define if you have libdmalloc])
+      ],
+      [AC_MSG_FAILURE(
+         [dmalloc test failed])],
+      [-ldmalloc])])
+
+if test "x$with_dmalloc" != xno; then
+AM_CONDITIONAL(USE_DMALLOC,true)
+else
+AM_CONDITIONAL(USE_DMALLOC,false)
+fi
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS(fcntl.h limits.h sys/time.h unistd.h sys/signal.h sys/timeb.h)
+AC_CHECK_HEADERS(grp.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_TYPE_SIZE_T
+AC_HEADER_TIME
+AC_STRUCT_TM
+
+dnl Checks for library functions.
+AC_CHECK_FUNCS(strdup)
+AC_CHECK_FUNCS(getopt)
+AC_CHECK_FUNCS(ftime gettimeofday, break)
+AC_CHECK_FUNCS(stricmp strcasecmp, break)
+
+
+AC_DEFINE_UNQUOTED(OUR_HOST,"${host}",
+[Set to a text string describing your operating system and hardware])
+
+AC_OUTPUT(Makefile src/Makefile common/Makefile inc/Makefile tbdcmd/Makefile 
+zlib/Makefile addons/Makefile)
+

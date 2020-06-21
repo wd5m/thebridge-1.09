@@ -1,0 +1,11 @@
+This directory contains programs and scripts that enhance the operation of
+thebridge contributed by others.
+
+program: usermgmt.cgi
+author: Ken KC4YOZ
+homepage: http://metro-uhf.org/kdj/scripts/usermgmt.cgi
+
+usermgmt is a CGI script used to control the *LINUX* and *NC* conferences.
+It's written in BASH so it's portable across Linux platforms, just requires a 
+properly configured Apache server.  See the user settings at the top before 
+you install it.

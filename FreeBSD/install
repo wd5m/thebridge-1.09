@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# description: install thebridge startup scripts on FreeBSD
+# $Id: install,v 1.1.1.1 2002/08/10 20:33:40 wb6ymh Exp $
+
+set -x
+cd ..
+make install
+cd FreeBSD
+cp tbd.sh /usr/local/etc/rc.d
+
