@@ -19,6 +19,10 @@
    http://CQiNet.sourceforge.net
 
    $Log: avrs.c,v $
+   Stop rounding up LatHunders and LongHunders with x + 0.5. Corrects invalid APRS
+   updates where some Longitude input values, such as 98.6, were being rounded up
+   resulting in an extra digit sent in the APRS update to EchoLink servers.
+   
    Revision 1.9  2012/12/09 18:41:35  wb6ymh
    Added call to DeleteClient in ReadAprsData on server timeout.  Corrects
    100% CPU utilization following timeout.
@@ -240,7 +244,7 @@ void GenAVRS(AVRS_State State,char *Connected2,char *Buf,int BufLen)
    LatMin = (int) x;
    x -= LatMin;
    x *= 100.0;
-   LatHunders = (int) (x + 0.5);
+   LatHunders = (int) x;
 
    if(Longitude > 0.0) {
    // East
@@ -259,7 +263,7 @@ void GenAVRS(AVRS_State State,char *Connected2,char *Buf,int BufLen)
    LongMin = (int) x;
    x -= LongMin;
    x *= 100.0;
-   LongHunders = (int) (x + 0.5);
+   LongHunders = (int) x;
 
    Power = (int) (sqrt(TxPower) + 0.5);
    if(Power > 9) {
