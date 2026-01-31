@@ -1621,6 +1621,7 @@ void RTP_Data(ClientInfo *p,ConfServer *pCS,ConfClient *pLookup)
          if(!pCC->bTalking) {
             pCC->FirstAudioIn = TimeNow;
             pCC->bTalking = TRUE;
+            EventHook("tx_start %s %d", pCC->Callsign, ConferenceClients);
          }
 
          if(ClientTalking == NULL && !pCC->bTimedOut && pCC->bInConf) {
@@ -1961,6 +1962,7 @@ int RTP_Handler(ClientInfo *p)
                LOG_WARN(("timed out user %s unkeyed.\n",pCC->Callsign));
             }
             pCC->bTalking = FALSE;
+            EventHook("tx_stop %s %d", pCC->Callsign, ConferenceClients);
             pCC->bTimedOut = FALSE;
 
             if(pCC->State != NULL) {
@@ -1980,8 +1982,8 @@ int RTP_Handler(ClientInfo *p)
 
    pCS->bLinkedConfs = bConfFound;
 
-   if(!bConfTalkerFound && ClientTalking != NULL && 
-      ClientTalking != pCS->pFilePlayer) 
+   if(!bConfTalkerFound && ClientTalking != NULL &&
+      ClientTalking != pCS->pFilePlayer)
    {  // The conference is free now
       CalcBW(pCS,TRUE);
       ClientTalking = NULL;
