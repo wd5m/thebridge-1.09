@@ -3645,13 +3645,24 @@ int GenBye(ConfClient *pCC,char *Temp,char *Reason)
    u.p->common.pt = RTCP_BYE;
 
    u.p->r.bye.src[0] = OurNodeID;
+
+  /*
+   * IMPORTANT:
+   * Don't write the reason into the packed rtcp_t union fields.
+   * Build it into Temp as raw bytes to avoid overflowing the struct.
+   */
    pFirstData = (char *) &u.p->r.bye.src;
    cp = pFirstData + sizeof(u.p->r.bye.src);
 
-   strcpy(&cp[1],Reason);
+  if (Reason && *Reason) {
+    size_t rlen = strlen(Reason);
+    if (rlen > 255)
+      rlen = 255; // RTCP reason length is 1 byte
 
-   *cp = (char) strlen(Reason);
-   cp += *cp + 1;
+    cp[0] = (unsigned char)rlen;  // length byte
+    memcpy(&cp[1], Reason, rlen); // reason bytes (no NUL)
+    cp += 1 + rlen;
+  }
    
    PadCount = 4 - ((cp - pFirstData) % 4);
 
